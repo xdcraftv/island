@@ -187,7 +187,7 @@ function runPetLoop() {
   petT = setTimeout(() => {
     if (p) p.dataset.act = 'doze';
     notch.classList.remove('pet-peek');
-    petT = setTimeout(runPetLoop, 7000 + Math.random() * 6000);
+    petT = setTimeout(runPetLoop, 70000 + Math.random() * 6000);
   }, act === 'look-l' || act === 'look-r' ? 2800 : 2200);
 }
 function enterSleep() {
