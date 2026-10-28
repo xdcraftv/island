@@ -1,0 +1,27 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Island",
+  "version": "0.1.0",
+  "identifier": "com.example.island",
+  "build": { "frontendDist": "../src" },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "label": "main",
+        "title": "Island",
+        "width": 600,
+        "height": 250,
+        "decorations": false,
+        "transparent": true,
+        "alwaysOnTop": true,
+        "skipTaskbar": true,
+        "resizable": false,
+        "shadow": false,
+        "focus": false
+      }
+    ],
+    "security": { "csp": null }
+  },
+  "bundle": { "active": true, "targets": ["nsis"], "icon": ["icons/icon.ico"] }
+}

@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Island – notch prototype</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<main class="wrap">
+<h1>Island – notch prototype</h1>
+<p class="lead">Hover the notch to open it (tap on touch). Drag a file onto the stage to use the shelf.</p>
+
+<section class="stage" id="stage">
+ <div class="notch playing" id="notch" data-state="idle" data-tab="music">
+  <div class="body">
+   <div class="view v-idle">
+    <div class="idle-l"><div class="wxi" id="wxIdle"></div><div class="ring" id="idleRing" hidden title="Focus timer active"></div></div>
+    <div class="idle-mid">
+     <div class="clock" id="clock">--:--</div>
+     <div class="pet" id="pet" aria-hidden="true"><span class="eye"></span><span class="eye"></span></div>
+    </div>
+    <div class="bars"><i></i><i></i><i></i><i></i></div>
+   </div>
+   <div class="view v-peek" id="peek"></div>
+   <div class="view v-open">
+    <div class="tabs" role="tablist">
+     <button class="tab on" data-t="music" role="tab"><svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>Media</button>
+     <button class="tab" data-t="focus" role="tab"><svg viewBox="0 0 24 24"><path d="M10 2h4M12 14l3-3"/><circle cx="12" cy="14" r="8"/></svg>Focus</button>
+     <button class="tab" data-t="prayer" role="tab"><svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/><path d="M19 3v4M17 5h4"/></svg>Prayer</button>
+     <button class="tab" data-t="shelf" role="tab"><svg viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>Shelf</button>
+     <button class="tab" data-t="weather" role="tab"><svg viewBox="0 0 24 24"><path d="M12 2v2M4.93 4.93l1.41 1.41M20 12h2M19.07 4.93l-1.41 1.41"/><path d="M16 13a4 4 0 0 0-7-2 5 5 0 0 0 .5 10H17a3.5 3.5 0 0 0-1-8z"/></svg>Weather</button>
+     <button class="tab" data-t="system" role="tab"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"/></svg>System</button>
+    </div>
+    <div class="pane" data-t="music">
+     <div class="row"><canvas class="art" id="art" width="64" height="64"></canvas>
+      <div class="meta"><b id="ttl">Neon Tide</b><small id="art-n">Hollow Atlas</small></div>
+      <div class="ctl"><button class="ib" id="prev" aria-label="Previous"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg></button>
+       <button class="ib" id="play" aria-label="Play or pause"></button>
+       <button class="ib" id="next" aria-label="Next"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6zM16 6v12h2V6z"/></svg></button></div></div>
+     <div class="scrub" id="scrubBox"><span id="pos">0:00</span><input type="range" id="seek" min="0" max="215" value="64" aria-label="Seek"><span id="dur">3:35</span></div>
+    </div>
+    <div class="pane" data-t="focus" hidden><div class="split"><div class="col">
+     <div class="row"><div><div class="big" id="left">25:00</div><small id="focusSub" style="color:#9aa0a8">Focus session</small></div>
+      <div class="fc-ctl"><button class="ib fc-ib" id="ambBtn" title="Ambient sound: Off" aria-label="Toggle ambient sound"></button><button class="ib fc-ib" id="reset" title="Reset timer" aria-label="Reset timer"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button><button class="btn go" id="start">Start</button></div></div>
+     <div class="pbar"><i id="pfill"></i></div>
+     <div class="dur" id="focusDurations"><button class="pill" data-m="15">15</button><button class="pill" data-m="25">25</button><button class="pill" data-m="45">45</button><span class="step"><button class="ib sm" id="dm" aria-label="Shorter">−</button><input id="dmin" type="number" min="1" max="180" value="25" aria-label="Minutes"><button class="ib sm" id="dp" aria-label="Longer">+</button><small>min</small></span></div>
+    </div><div class="col"><div class="todo"><div class="add"><input id="todoIn" type="text" placeholder="Add a task" maxlength="80" aria-label="New task"><button class="btn go" id="todoAdd">Add</button></div><div class="tl" id="tl"></div></div></div></div></div>
+    <div class="pane" data-t="prayer" hidden><div class="pray" id="pray"></div><div class="pnext-row"><div class="pnext" id="pnext"></div><div class="qibla" id="qibla"></div></div></div>
+    <div class="pane" data-t="weather" hidden><div id="wxPane"></div></div>
+    <div class="pane" data-t="system" hidden><div id="sysPane"></div></div>
+    <div class="pane" data-t="shelf" hidden><div class="split"><div class="col"><div class="drop" id="drop"></div></div><div class="col"><div id="clipPane"></div></div></div></div>
+   </div>
+  </div>
+ </div>
+ <div class="hint">Your desktop goes here. The notch stays on top and out of the way.</div>
+</section>
+
+<div class="sim"><span>Simulate a system event</span>
+ <button id="e-vol">Change volume</button><button id="e-hp">Connect headphones</button><button id="e-done">Finish focus session</button><button id="e-pray">Prayer reminder</button><button id="e-sleep">Sleep companion</button><button id="e-cover">Try your own cover</button><input type="file" id="cover" accept="image/*" hidden></div>
+<p class="note">Prayer times are calculated on the device for Sukoharjo (Kemenag method: Subuh 20°, Isya 18°, Shafi’i Ashar) and match the official Kemenag table for October 2026. Music, volume and Bluetooth events are simulated here; the desktop app reads them from Windows.</p>
+</main>
+
+<script>
+const $ = (s) => document.querySelector(s),
+  $$ = (s) => [...document.querySelectorAll(s)];
+const notch = $('#notch'),
+  stage = $('#stage');
+const S = {
+  ti: 0,
+  color: '#e5252f',
+  color2: '#5b3fd6',
+  playing: true,
+  pos: 64,
+  dur: 215,
+  total: 1500,
+  left: 1500,
+  run: false,
+  amb: 0,
+  vol: 60,
+  files: []
+};
+let closeT,
+  peekT,
+  meterT,
+  dragging = false,
+  over = false,
+  touch = false;
+const fmt = (s) => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
+const IC = {
+  vol: '<path d="M3 9v6h4l5 4V5L7 9H3zm13.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z"/>',
+  hp: '<path d="M12 3a9 9 0 0 0-9 9v7a2 2 0 0 0 2 2h2v-8H5v-1a7 7 0 0 1 14 0v1h-2v8h2a2 2 0 0 0 2-2v-7a9 9 0 0 0-9-9z"/>',
+  ok: '<path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/>',
+  moon: '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>'
+};
+
+/* Web Audio synthesizer for soft chimes & focus ambient noise */
+let audioCtx, ambNode, ambGain;
+function ensureAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+}
+function playChime(freqs = [523.25, 659.25, 783.99]) {
+  try {
+    ensureAudio();
+    freqs.forEach((f, i) => {
+      const osc = audioCtx.createOscillator(),
+        g = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = f;
+      const t0 = audioCtx.currentTime + i * 0.14;
+      g.gain.setValueAtTime(0.001, t0);
+      g.gain.exponentialRampToValueAtTime(0.12, t0 + 0.04);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.9);
+      osc.connect(g).connect(audioCtx.destination);
+      osc.start(t0);
+      osc.stop(t0 + 0.95);
+    });
+  } catch (e) {}
+}
+const AMB_MODES = ['Off', 'Rain', 'Pink noise'];
+const AMB_ICONS = [
+  '<svg viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M22 9l-6 6M16 9l6 6"/></svg>',
+  '<svg viewBox="0 0 24 24"><path d="M16 13a4 4 0 0 0-7-2 5 5 0 0 0 .5 10H17a3.5 3.5 0 0 0-1-8z" transform="translate(0,-3)"/><path d="M8 18l-1.5 3M12 18l-1.5 3M16 18l-1.5 3"/></svg>',
+  '<svg viewBox="0 0 24 24"><path d="M2 12c2-4 4-4 6 0s4 4 6 0 4-4 6 0"/><path d="M2 17c2-3 4-3 6 0s4 3 6 0 4-3 6 0" opacity=".5"/></svg>'
+];
+function updateAmbient() {
+  const b = $('#ambBtn');
+  b.innerHTML = AMB_ICONS[S.amb];
+  b.classList.toggle('on', S.amb > 0);
+  b.title = 'Ambient sound: ' + AMB_MODES[S.amb];
+  $('#focusSub').textContent = S.amb > 0 ? 'Focus · ' + AMB_MODES[S.amb] : 'Focus session';
+  if (ambNode) {
+    try { ambNode.stop(); ambNode.disconnect(); } catch (e) {}
+    ambNode = null;
+  }
+  if (!S.run || S.amb === 0) return;
+  try {
+    ensureAudio();
+    const bufSize = audioCtx.sampleRate * 2,
+      buf = audioCtx.createBuffer(1, bufSize, audioCtx.sampleRate),
+      out = buf.getChannelData(0);
+    let b0 = 0, b1 = 0, b2 = 0;
+    for (let i = 0; i < bufSize; i++) {
+      const w = Math.random() * 2 - 1;
+      b0 = 0.99765 * b0 + w * 0.099046;
+      b1 = 0.96300 * b1 + w * 0.2965164;
+      b2 = 0.57000 * b2 + w * 1.0526913;
+      out[i] = (b0 + b1 + b2 + w * 0.1848) * 0.04;
+    }
+    ambNode = audioCtx.createBufferSource();
+    ambNode.buffer = buf;
+    ambNode.loop = true;
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = S.amb === 1 ? 'bandpass' : 'lowpass';
+    filter.frequency.value = S.amb === 1 ? 1100 : 420;
+    ambGain = audioCtx.createGain();
+    ambGain.gain.value = S.amb === 1 ? 0.35 : 0.25;
+    ambNode.connect(filter).connect(ambGain).connect(audioCtx.destination);
+    ambNode.start();
+  } catch (e) {}
+}
+$('#ambBtn').onclick = () => {
+  S.amb = (S.amb + 1) % AMB_MODES.length;
+  updateAmbient();
+};
+
+let sleepT, petT, lastIdleAt = Date.now();
+function wakePet() {
+  lastIdleAt = Date.now();
+  clearTimeout(petT);
+  if (notch.dataset.sleep) {
+    delete notch.dataset.sleep;
+    const p = $('#pet');
+    if (p) p.dataset.act = '';
+  }
+}
+function runPetLoop() {
+  clearTimeout(petT);
+  if (notch.dataset.state !== 'idle' || !notch.dataset.sleep) return;
+  const p = $('#pet');
+  if (!p) return;
+  const acts = ['blink', 'look-l', 'look-r', 'blink', 'doze', 'peek-awake'];
+  const act = acts[Math.floor(Math.random() * acts.length)];
+  p.dataset.act = act;
+  notch.classList.toggle('pet-peek', act !== 'doze');
+  petT = setTimeout(() => {
+    if (p) p.dataset.act = 'doze';
+    notch.classList.remove('pet-peek');
+    petT = setTimeout(runPetLoop, 7000 + Math.random() * 6000);
+  }, act === 'look-l' || act === 'look-r' ? 2800 : 2200);
+}
+function enterSleep() {
+  if (notch.dataset.state !== 'idle') return;
+  notch.dataset.sleep = '1';
+  runPetLoop();
+}
+const state = (s) => {
+  notch.dataset.state = s;
+  wakePet();
+  notch.classList.remove('pet-peek');
+};
+function open(tab) {
+  clearTimeout(closeT);
+  clearTimeout(peekT);
+  if (tab) setTab(tab);
+  state('open');
+  if (!over && !touch) close(2500);
+}
+function close(ms = 450) {
+  clearTimeout(closeT);
+  closeT = setTimeout(() => {
+    const a = document.activeElement;
+    if (
+      notch.dataset.state === 'open' &&
+      !dragging &&
+      !over &&
+      !(notch.contains(a) && a.matches('input,textarea'))
+    )
+      state('idle');
+  }, ms);
+}
+function peek(icon, title, sub, meter, ms = 3200) {
+  if (notch.dataset.state === 'open' && over) return;
+  const escapeHtml = (value) =>
+    String(value).replace(
+      /[&<>"']/g,
+      (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]
+    );
+  $('#peek').innerHTML =
+    '<svg viewBox="0 0 24 24">' +
+    IC[icon] +
+    '</svg><div><b>' +
+    escapeHtml(title) +
+    '</b><small>' +
+    escapeHtml(sub) +
+    '</small></div>' +
+    (meter == null ? '' : '<div class="meter"><i style="width:0"></i></div>');
+  clearTimeout(meterT);
+  if (meter != null) {
+    const m = $('#peek .meter i');
+    meterT = setTimeout(() => {
+      if (m) m.style.width = meter + '%';
+    }, 180);
+  }
+  $('#peek').dataset.k = icon;
+  state('peek');
+  clearTimeout(peekT);
+  peekT = setTimeout(() => {
+    if (notch.dataset.state === 'peek') state('idle');
+  }, ms);
+}
+document.addEventListener(
+  'pointerdown',
+  (e) => {
+    touch = e.pointerType !== 'mouse';
+  },
+  true
+);
+notch.addEventListener('pointerenter', (e) => {
+  if (e.pointerType === 'mouse' && !window.__TAURI__) {
+    over = true;
+    open();
+  }
+});
+notch.addEventListener('pointerleave', (e) => {
+  if (e.pointerType === 'mouse' && !window.__TAURI__) {
+    over = false;
+    close();
+  }
+});
+notch.addEventListener('click', () => {
+  if (notch.dataset.state !== 'open') open();
+});
+notch.addEventListener('focusout', () => {
+  if (!over) close(400);
+});
+document.addEventListener('click', (e) => {
+  if (!notch.contains(e.target) && notch.dataset.state === 'open') close(0);
+});
+
+/* Mouse wheel volume adjustment on idle/peek notch */
+notch.addEventListener(
+  'wheel',
+  (e) => {
+    if (notch.dataset.state === 'open') return;
+    e.preventDefault();
+    const delta = e.deltaY < 0 ? 4 : -4;
+    if (window.__TAURI__) {
+      window.__TAURI__.core.invoke('set_vol', { delta });
+    } else {
+      S.vol = Math.max(0, Math.min(100, S.vol + delta));
+      peek('vol', S.vol === 0 ? 'Muted' : 'Volume', S.vol + '%', S.vol, 2000);
+    }
+  },
+  { passive: false }
+);
+
+function setTab(t) {
+  notch.dataset.tab = t;
+  $$('.tab').forEach((b) => b.classList.toggle('on', b.dataset.t === t));
+  $$('.pane').forEach((p) => {
+    const match = p.dataset.t === t;
+    p.hidden = !match;
+    if (match) {
+      p.classList.remove('pane-in');
+      void p.offsetWidth;
+      p.classList.add('pane-in');
+    }
+  });
+}
+$$('.tab').forEach((b) => (b.onclick = () => setTab(b.dataset.t)));
+
+/* music */
+const PLAY = '<svg viewBox="0 0 24 24"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>',
+  PAUSE = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+function drawMusic() {
+  $('#play').innerHTML = S.playing ? PLAY : PAUSE;
+  notch.classList.toggle('playing', S.playing);
+  $('#seek').max = S.dur;
+  notch.style.setProperty('--tint', S.playing ? S.color : '#e5252f');
+  notch.style.setProperty('--tint2', S.playing ? S.color2 : '#5b3fd6');
+  $('#pos').textContent = fmt(S.pos);
+  $('#dur').textContent = fmt(S.dur);
+  $('#seek').value = S.pos;
+}
+$('#play').onclick = () => {
+  S.playing = !S.playing;
+  setPos(S.pos);
+  drawMusic();
+};
+$('#prev').onclick = () => setTrack(S.ti - 1);
+$('#next').onclick = () => setTrack(S.ti + 1);
+$('#seek').oninput = (e) => {
+  setPos(+e.target.value);
+  drawMusic();
+};
+$('#scrubBox').addEventListener(
+  'wheel',
+  (e) => {
+    e.preventDefault();
+    const next = Math.max(0, Math.min(S.dur, S.pos + (e.deltaY < 0 ? 5 : -5)));
+    setPos(next);
+    drawMusic();
+    if (window.__TAURI__) {
+      S.scrub = Date.now();
+      window.__TAURI__.core.invoke('media_cmd', { cmd: 'seek:' + next });
+    }
+  },
+  { passive: false }
+);
+
+function drawCover(im) {
+  const s = Math.min(im.width, im.height);
+  actx.drawImage(im, (im.width - s) / 2, (im.height - s) / 2, s, s, 0, 0, 64, 64);
+}
+function setPos(p) {
+  S.pos = p;
+  S.a0 = p;
+  S.t0 = Date.now();
+}
+/* tracks and dual cover colours */
+const TR = [
+  { t: 'Neon Tide', a: 'Hollow Atlas', d: 215, c: ['#f6b73c', '#e0457b', '#5b3fd6'] },
+  { t: 'Paper Lanterns', a: 'Moss & Marrow', d: 188, c: ['#c9f2a0', '#1fa37a', '#0b4d5c'] },
+  { t: 'Low Orbit', a: 'Sela', d: 243, c: ['#bfe3ff', '#3a6df0', '#1a1f6b'] }
+];
+const actx = $('#art').getContext('2d', { willReadFrequently: true });
+function dominantPair() {
+  const d = actx.getImageData(0, 0, 64, 64).data;
+  const sample = (start, end) => {
+    let r = 0, g = 0, b = 0, w = 0;
+    for (let i = start; i < end; i += 16) {
+      const s = Math.max(d[i], d[i + 1], d[i + 2]) - Math.min(d[i], d[i + 1], d[i + 2]) + 8;
+      r += d[i] * s; g += d[i + 1] * s; b += d[i + 2] * s; w += s;
+    }
+    const k = 230 / Math.max(r / w, g / w, b / w, 1);
+    return 'rgb(' + [r, g, b].map((v) => Math.min(255, Math.round((v / w) * k))).join(',') + ')';
+  };
+  const mid = (d.length >> 1) & ~15;
+  return [sample(0, mid), sample(mid, d.length)];
+}
+function setTrack(i) {
+  S.ti = (i + TR.length) % TR.length;
+  const k = TR[S.ti],
+    g = actx.createLinearGradient(0, 0, 64, 64);
+  k.c.forEach((c, j) => g.addColorStop(j / (k.c.length - 1), c));
+  actx.fillStyle = g;
+  actx.fillRect(0, 0, 64, 64);
+  const a = $('#art');
+  a.classList.remove('swap');
+  void a.offsetWidth;
+  a.classList.add('swap');
+  $('#ttl').textContent = k.t;
+  $('#art-n').textContent = k.a;
+  S.dur = k.d;
+  setPos(0);
+  S.playing = true;
+  [S.color, S.color2] = dominantPair();
+  drawMusic();
+}
+$('#e-cover').onclick = () => $('#cover').click();
+$('#cover').onchange = (e) => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const fr = new FileReader();
+  fr.onload = () => {
+    const im = new Image();
+    im.onload = () => {
+      drawCover(im);
+      [S.color, S.color2] = dominantPair();
+      S.playing = true;
+      drawMusic();
+      open('music');
+    };
+    im.src = fr.result;
+  };
+  fr.readAsDataURL(f);
+};
+
+/* focus timer */
+function drawTimer() {
+  $('#left').textContent = fmt(S.left);
+  $('#start').textContent = S.run ? 'Pause' : 'Start';
+  $$('#focusDurations button,#focusDurations input').forEach((el) => (el.disabled = S.run));
+  const done = 1 - S.left / S.total;
+  $('#pfill').style.width = done * 100 + '%';
+  const ring = $('#idleRing');
+  ring.hidden = !S.run;
+  ring.style.setProperty('--p', Math.round((S.left / S.total) * 360) + 'deg');
+}
+function finish() {
+  S.run = false;
+  S.left = S.total;
+  updateAmbient();
+  drawTimer();
+  playChime([523.25, 659.25, 783.99, 1046.5]);
+  peek('ok', 'Focus session complete', Math.round(S.total / 60) + ' minutes done. Take a break.');
+}
+$('#start').onclick = () => {
+  S.run = !S.run;
+  if (S.run) S.end = Date.now() + S.left * 1000;
+  updateAmbient();
+  drawTimer();
+};
+$('#reset').onclick = () => {
+  S.run = false;
+  S.left = S.total;
+  updateAmbient();
+  drawTimer();
+};
+function setMins(m) {
+  m = Math.max(1, Math.min(180, Math.round(+m) || 25));
+  S.total = m * 60;
+  S.left = S.total;
+  S.run = false;
+  updateAmbient();
+  $('#dmin').value = m;
+  $$('.pill').forEach((p) => p.classList.toggle('on', +p.dataset.m === m));
+  try {
+    localStorage.setItem('island-focus', m);
+  } catch (e) {}
+  drawTimer();
+}
+$$('.pill').forEach((p) => (p.onclick = () => setMins(p.dataset.m)));
+$('#dm').onclick = () => setMins(+$('#dmin').value - 5);
+$('#dp').onclick = () => setMins(+$('#dmin').value + 5);
+$('#dmin').onchange = (e) => setMins(e.target.value);
+$('#dmin').onkeydown = (e) => {
+  if (e.key === 'Enter') e.target.blur();
+};
+
+/* to-do */
+let TD = [];
+try {
+  TD = JSON.parse(localStorage.getItem('island-todo')) || [];
+} catch (e) {}
+TD = Array.isArray(TD) ? TD.filter((task) => task && typeof task.t === 'string') : [];
+function saveTD() {
+  try {
+    localStorage.setItem('island-todo', JSON.stringify(TD));
+  } catch (e) {}
+}
+function drawTD() {
+  const l = $('#tl');
+  l.textContent = '';
+  if (!TD.length) {
+    const e = document.createElement('div');
+    e.className = 'empty';
+    e.textContent = 'Nothing to do. Add a task above.';
+    l.append(e);
+    return;
+  }
+  TD.forEach((k) => {
+    const r = document.createElement('div');
+    r.className = 'ti' + (k.d ? ' done' : '') + (k.n ? ' new' : '');
+    delete k.n;
+    const c = document.createElement('button');
+    c.className = 'ck';
+    c.setAttribute('aria-label', (k.d ? 'Mark not done: ' : 'Mark done: ') + k.t);
+    c.onclick = () => {
+      k.d = k.d ? 0 : 1;
+      saveTD();
+      r.classList.toggle('done', !!k.d);
+      c.setAttribute('aria-label', (k.d ? 'Mark not done: ' : 'Mark done: ') + k.t);
+    };
+    const s = document.createElement('span');
+    s.textContent = k.t;
+    s.title = k.t;
+    const x = document.createElement('button');
+    x.className = 'x';
+    x.textContent = '×';
+    x.setAttribute('aria-label', 'Delete ' + k.t);
+    x.onclick = () => {
+      r.classList.add('out');
+      setTimeout(() => {
+        const idx = TD.indexOf(k);
+        if (idx !== -1) TD.splice(idx, 1);
+        saveTD();
+        drawTD();
+      }, 220);
+    };
+    r.append(c, s, x);
+    l.append(r);
+  });
+}
+function addTD() {
+  const v = $('#todoIn').value.trim();
+  if (!v) return;
+  TD.unshift({ t: v, d: 0, n: 1 });
+  $('#todoIn').value = '';
+  drawTD();
+  saveTD();
+}
+$('#todoAdd').onclick = addTD;
+$('#todoIn').onkeydown = (e) => {
+  if (e.key === 'Enter') addTD();
+  if (e.key === 'Escape') e.target.blur();
+};
+
+/* shelf */
+function drawShelf() {
+  const d = $('#drop');
+  d.textContent = '';
+  if (!S.files.length) {
+    const e = document.createElement('div');
+    e.className = 'empty';
+    e.textContent = 'Drop files or copy an image here';
+    d.append(e);
+    return;
+  }
+  S.files.forEach((f, i) => {
+    const c = document.createElement('div');
+    c.className = 'chip';
+    const n = document.createElement('span');
+    n.textContent = f;
+    n.title = f;
+    const x = document.createElement('button');
+    x.textContent = '×';
+    x.setAttribute('aria-label', 'Remove ' + f);
+    x.onclick = () => {
+      S.files.splice(i, 1);
+      drawShelf();
+    };
+    c.append(n, x);
+    d.append(c);
+  });
+}
+window.addEventListener('dragover', (e) => e.preventDefault());
+if (!window.__TAURI__) {
+  stage.addEventListener('dragenter', (e) => {
+    e.preventDefault();
+    dragging = true;
+    open('shelf');
+    notch.classList.add('dropping');
+  });
+  window.addEventListener('dragleave', (e) => {
+    if (e.relatedTarget === null) {
+      dragging = false;
+      notch.classList.remove('dropping');
+      close();
+    }
+  });
+  window.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dragging = false;
+    notch.classList.remove('dropping');
+    over = notch.contains(e.target);
+    if (!over) close(1200);
+    if (stage.contains(e.target) && e.dataTransfer) {
+      [...e.dataTransfer.files].forEach((f) => {
+        if (!S.files.includes(f.name)) S.files.push(f.name);
+      });
+      drawShelf();
+    }
+  });
+} else {
+  window.addEventListener('drop', (e) => e.preventDefault());
+}
+
+/* prayer times & Qibla: Sukoharjo / Karanganyar, Central Java */
+let LAT = -7.6819,
+  LNG = 110.8406,
+  TZ = -new Date().getTimezoneOffset() / 60;
+const IH = [2, 3, 2, 3, 2];
+const rad = Math.PI / 180,
+  sin = (a) => Math.sin(a * rad),
+  cos = (a) => Math.cos(a * rad),
+  tan = (a) => Math.tan(a * rad),
+  asin = (x) => Math.asin(x) / rad,
+  acos = (x) => Math.acos(x) / rad,
+  atan2 = (y, x) => Math.atan2(y, x) / rad,
+  fix = (a, m) => a - m * Math.floor(a / m);
+function calcQibla(lat, lng) {
+  const kLat = 21.4225,
+    kLng = 39.8262;
+  const y = sin(kLng - lng),
+    x = cos(lat) * tan(kLat) - sin(lat) * cos(kLng - lng);
+  return Math.round(fix(atan2(y, x), 360));
+}
+function sunPos(jd) {
+  const D = jd - 2451545,
+    g = fix(357.529 + 0.98560028 * D, 360),
+    q = fix(280.459 + 0.98564736 * D, 360),
+    L = fix(q + 1.915 * sin(g) + 0.02 * sin(2 * g), 360),
+    e = 23.439 - 3.6e-7 * D,
+    ra = fix(atan2(cos(e) * sin(L), cos(L)) / 15, 24);
+  return { eq: q / 15 - ra, decl: asin(sin(e) * sin(L)) };
+}
+function julian(y, m, d) {
+  if (m <= 2) {
+    y--;
+    m += 12;
+  }
+  const A = Math.floor(y / 100),
+    B = 2 - A + Math.floor(A / 4);
+  return Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + d + B - 1524.5;
+}
+function calc(y, m, d) {
+  const jd = julian(y, m, d) - LNG / 360,
+    mid = (t) => fix(12 - sunPos(jd + t).eq, 24),
+    ang = (a, t, ccw) => {
+      const dc = sunPos(jd + t).decl,
+        h = acos((-sin(a) - sin(dc) * sin(LAT)) / (cos(dc) * cos(LAT))) / 15;
+      return mid(t) + (ccw ? -h : h);
+    },
+    adj = (h) => fix(h + TZ - LNG / 15, 24) * 60,
+    asrA = -Math.atan(1 / (1 + tan(Math.abs(LAT - sunPos(jd + 13 / 24).decl)))) / rad;
+  return [
+    ['Subuh', adj(ang(20, 5 / 24, 1))],
+    ['Dzuhur', adj(mid(0.5))],
+    ['Ashar', adj(ang(asrA, 13 / 24))],
+    ['Maghrib', adj(ang(0.833, 18 / 24))],
+    ['Isya', adj(ang(18, 18 / 24))]
+  ].map(([k, t], i) => ({ k, t: Math.ceil(t + IH[i]) }));
+}
+const sv = (d) => '<svg viewBox="0 0 24 24">' + d + '</svg>';
+const PI = {
+  Subuh: sv(
+    '<path d="M12 2v8M4.93 10.93l1.41 1.41M2 18h2M20 18h2M19.07 10.93l-1.41 1.41M22 22H2M8 6l4-4 4 4M16 18a4 4 0 0 0-8 0"/>'
+  ),
+  Dzuhur: sv(
+    '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>'
+  ),
+  Ashar: sv(
+    '<circle cx="12" cy="12" r="3"/><path d="M12 4v1M12 19v1M5.6 5.6l.7.7M17.7 17.7l.7.7M4 12h1M19 12h1M5.6 18.4l.7-.7M17.7 6.3l.7-.7"/>'
+  ),
+  Maghrib: sv(
+    '<path d="M12 10V2M4.93 10.93l1.41 1.41M2 18h2M20 18h2M19.07 10.93l-1.41 1.41M22 22H2M16 6l-4 4-4-4M16 18a4 4 0 0 0-8 0"/>'
+  ),
+  Isya: sv('<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>')
+};
+const P = { day: '', list: [] },
+  announced = new Set();
+const wib = () => {
+  const w = new Date(Date.now() + TZ * 36e5);
+  return {
+    y: w.getUTCFullYear(),
+    m: w.getUTCMonth() + 1,
+    d: w.getUTCDate(),
+    s: w.getUTCHours() * 3600 + w.getUTCMinutes() * 60 + w.getUTCSeconds()
+  };
+};
+const hm = (t) => {
+  const wrapped = ((t % 1440) + 1440) % 1440;
+  return (
+    String(Math.floor(wrapped / 60)).padStart(2, '0') + ':' + String(wrapped % 60).padStart(2, '0')
+  );
+};
+function nextPrayer() {
+  const n = wib(),
+    key = n.y + '-' + n.m + '-' + n.d;
+  if (P.day !== key) {
+    P.day = key;
+    P.list = calc(n.y, n.m, n.d);
+  }
+  const nx = P.list.find((p) => p.t * 60 > n.s) || { ...P.list[0], t: P.list[0].t + 1440 };
+  return { n, list: P.list, nx };
+}
+function drawPrayer() {
+  const { n, list, nx } = nextPrayer(),
+    box = $('#pray');
+  box.textContent = '';
+  list.forEach((p) => {
+    const c = document.createElement('div');
+    c.className = 'pt' + (p.k === nx.k ? ' on' : '');
+    const a = document.createElement('small'),
+      b = document.createElement('b');
+    a.innerHTML = PI[p.k] + p.k;
+    b.textContent = hm(p.t);
+    c.append(a, b);
+    box.append(c);
+  });
+  const mins = Math.max(0, Math.ceil(nx.t - n.s / 60));
+  $('#pnext').textContent =
+    nx.k +
+    ' in ' +
+    (mins >= 60 ? Math.floor(mins / 60) + 'h ' : '') +
+    (mins % 60) +
+    'm';
+  const qDeg = calcQibla(LAT, LNG);
+  $('#qibla').innerHTML =
+    `<svg viewBox="0 0 24 24" style="transform:rotate(${qDeg}deg)"><path d="M12 2L8 20l4-4 4 4-4-18z"/></svg>Qibla ${qDeg}°`;
+}
+function announce(p, type) {
+  playChime([440, 554.37, 659.25]);
+  type === 'now'
+    ? peek('moon', 'Time for ' + p.k, hm(p.t) + ' · your location', null, 9000)
+    : peek('moon', p.k + ' in 10 minutes', hm(p.t), null, 5000);
+}
+function checkPrayer() {
+  const { n, list } = nextPrayer();
+  drawPrayer();
+  list.forEach((p) => {
+    const diff = p.t * 60 - n.s,
+      type = diff <= 0 && diff > -60 ? 'now' : diff <= 600 && diff > 540 ? 'soon' : null;
+    if (!type) return;
+    const id = P.day + p.k + type;
+    if (announced.has(id)) return;
+    announced.add(id);
+    announce(p, type);
+  });
+}
+$('#e-pray').onclick = () => announce(nextPrayer().nx, 'now');
+
+const IMGS = [];
+window.addEventListener('clipimg', (e) => {
+  IMGS.unshift(e.detail);
+  IMGS.length = Math.min(IMGS.length, 8);
+  drawShelf();
+});
+const _ds = drawShelf;
+drawShelf = function () {
+  _ds();
+  const d = $('#drop');
+  if (IMGS.length) d.querySelector('.empty')?.remove();
+  IMGS.forEach((src) => {
+    const i = document.createElement('img');
+    i.src = src;
+    i.className = 'thumb';
+    i.title = 'Click to remove';
+    i.onclick = () => {
+      IMGS.splice(IMGS.indexOf(src), 1);
+      drawShelf();
+    };
+    d.append(i);
+  });
+};
+/* simulated system events */
+$('#e-vol').onclick = () => {
+  const v = 10 + Math.floor(Math.random() * 90);
+  S.vol = v;
+  peek('vol', 'Volume', v + '%', v);
+};
+$('#e-hp').onclick = () => peek('hp', 'Headphones connected', 'Battery 80%');
+$('#e-done').onclick = finish;
+$('#e-sleep').onclick = () => {
+  state('idle');
+  enterSleep();
+};
+
+/* clock and ticks */
+function tick() {
+  $('#clock').textContent = new Date().toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+  if (S.playing && Date.now() - (S.scrub || 0) > 1500) {
+    S.pos = Math.min(S.dur, S.a0 + (Date.now() - S.t0) / 1000);
+    if (S.pos >= S.dur && !window.__TAURI__) setPos(0);
+    drawMusic();
+  }
+  if (S.run) {
+    S.left = Math.max(0, Math.round((S.end - Date.now()) / 1000));
+    if (S.left <= 0) finish();
+    else drawTimer();
+  }
+  if (notch.dataset.state === 'idle' && !notch.dataset.sleep && Date.now() - lastIdleAt > 35000) {
+    enterSleep();
+  }
+  checkPrayer();
+}
+setInterval(tick, 500);
+setTrack(0);
+setPos(64);
+tick();
+drawTimer();
+drawShelf();
+drawPrayer();
+drawTD();
+(() => {
+  let m = 25;
+  try {
+    m = +localStorage.getItem('island-focus') || 25;
+  } catch (e) {}
+  setMins(m);
+})();
+
+/* desktop bridge (Tauri) */
+if (window.__TAURI__) {
+  const { invoke } = window.__TAURI__.core,
+    { listen } = window.__TAURI__.event,
+    PATHS = {},
+    CC = {};
+  const none = () => {
+    S.playing = false;
+    setPos(0);
+    S.dur = 0;
+    actx.clearRect(0, 0, 64, 64);
+    $('#ttl').textContent = 'Nothing playing';
+    $('#art-n').textContent = 'Play something to see it here';
+    drawMusic();
+  };
+  none();
+  listen('open-island', () => {
+    over = false;
+    open();
+  });
+  listen('hover', (e) => {
+    over = !!e.payload;
+    e.payload ? open() : close();
+  });
+  new MutationObserver(() => invoke('set_state', { state: notch.dataset.state })).observe(notch, {
+    attributes: true,
+    attributeFilter: ['data-state']
+  });
+  $('#play').onclick = () => invoke('media_cmd', { cmd: 'toggle' });
+  $('#prev').onclick = () => invoke('media_cmd', { cmd: 'prev' });
+  $('#next').onclick = () => invoke('media_cmd', { cmd: 'next' });
+  $('#seek').oninput = (e) => {
+    S.scrub = Date.now();
+    S.pos = +e.target.value;
+    $('#pos').textContent = fmt(S.pos);
+  };
+  $('#seek').onchange = (e) => {
+    S.scrub = Date.now();
+    setPos(+e.target.value);
+    invoke('media_cmd', { cmd: 'seek:' + e.target.value });
+  };
+  listen('media', (e) => {
+    const m = e.payload;
+    if (m.none) {
+      none();
+      return;
+    }
+    const k = m.title + '|' + m.artist;
+    $('#ttl').textContent = m.title || 'Unknown';
+    $('#art-n').textContent = m.artist || '';
+    S.dur = Math.max(1, m.dur);
+    S.playing = m.playing;
+    if (Date.now() - (S.scrub || 0) > 1500) setPos(m.pos);
+    if (m.cover) {
+      const im = new Image();
+      im.onload = () => {
+        actx.clearRect(0, 0, 64, 64);
+        drawCover(im);
+        [S.color, S.color2] = CC[k] || (CC[k] = dominantPair());
+        const a = $('#art');
+        a.classList.remove('swap');
+        void a.offsetWidth;
+        a.classList.add('swap');
+        drawMusic();
+      };
+      im.src = m.cover;
+    } else drawMusic();
+  });
+  listen('tauri://drag-enter', () => {
+    dragging = true;
+    open('shelf');
+    notch.classList.add('dropping');
+  });
+  listen('tauri://drag-leave', () => {
+    dragging = false;
+    notch.classList.remove('dropping');
+    close();
+  });
+  listen('tauri://drag-drop', (e) => {
+    dragging = false;
+    notch.classList.remove('dropping');
+    (e.payload.paths || []).forEach((p) => {
+      const n = p.split(/[\\/]/).pop();
+      PATHS[n] = p;
+      if (!S.files.includes(n)) S.files.push(n);
+    });
+    drawShelf();
+    close(1500);
+  });
+  $('#drop').addEventListener('click', (e) => {
+    const s = e.target.closest('.chip span');
+    if (s && PATHS[s.textContent]) invoke('open_path', { path: PATHS[s.textContent] });
+  });
+  listen('vol', (e) => {
+    const v = e.payload,
+      t = v.muted ? 'Muted' : 'Volume',
+      pc = v.muted ? 0 : v.pct,
+      p = $('#peek');
+    S.vol = v.pct;
+    if (notch.dataset.state === 'peek' && p.dataset.k === 'vol') {
+      clearTimeout(meterT);
+      p.querySelector('b').textContent = t;
+      p.querySelector('small').textContent = v.pct + '%';
+      const bar = p.querySelector('.meter i');
+      if (bar) bar.style.width = pc + '%';
+      clearTimeout(peekT);
+      peekT = setTimeout(() => {
+        if (notch.dataset.state === 'peek') state('idle');
+      }, 2000);
+    } else peek('vol', t, v.pct + '%', pc, 2000);
+  });
+  listen('audiodev', (e) => {
+    const n = e.payload || 'Audio device',
+      hp = /head|bud|pods|wh-|wf-|bluetooth|hands-free/i.test(n);
+    peek('hp', hp ? 'Headphones connected' : 'Audio output changed', n, null, 4000);
+  });
+  invoke('get_location')
+    .then(([la, lo]) => {
+      LAT = la;
+      LNG = lo;
+      P.day = '';
+      drawPrayer();
+      window.dispatchEvent(new CustomEvent('loc', { detail: { lat: la, lng: lo } }));
+    })
+    .catch(() => {});
+}
+</script>
+<script type="module" src="panes.js"></script>
+</body>
+</html>
